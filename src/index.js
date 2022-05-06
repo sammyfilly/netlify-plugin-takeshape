@@ -13,7 +13,12 @@ const baseUrl = TAKESHAPE_BASE_URL ?? "https://api.takeshape.io";
 
 async function ensureLatestSchema(git, projectId) {
   const schemaFiles = git.fileMatch("**/schema.json");
-  if (schemaFiles.edited.length !== 1) {
+
+  if (schemaFiles.edited.length === 0) {
+    return;
+  }
+
+  if (schemaFiles.edited.length > 1) {
     console.log("Skipping schema update because there were multiple files named \"schema.json\" in the changeset");
     return;
   }
