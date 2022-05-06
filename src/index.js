@@ -9,14 +9,16 @@ const { BRANCH, SITE_NAME, TAKESHAPE_BASE_URL, TAKESHAPE_ACCESS_TOKEN } =
 const authorizationHeader = {
   Authorization: `Bearer ${TAKESHAPE_ACCESS_TOKEN}`,
 };
+const baseUrl = TAKESHAPE_BASE_URL ?? "https://api.takeshape.io";
 
 async function ensureLatestSchema(git, projectId) {
   const schemaFiles = git.fileMatch("**/schema.json");
-  if (schemaFiles.modified.length !== 1) {
+  if (schemaFiles.edited.length !== 1) {
+    console.log("Skipping schema update because there were multiple files named \"schema.json\" in the changeset");
     return;
   }
 
-  await fetch([TAKESHAPE_BASE_URL, "project", projectId, "schema"].join("/"), {
+  await fetch([baseUrl, "project", projectId, "schema"].join("/"), {
     body: readFileSync(schemaFiles.modified[0]),
     headers: {
       ...authorizationHeader,
@@ -190,26 +192,15 @@ export const onPreBuild = async function ({ netlifyConfig, utils }) {
   }
 
   try {
-    const client = new GraphQLClient(
-      [
-        TAKESHAPE_BASE_URL ?? "https://api.takeshape.io",
-        "v3/admin-graphql",
-      ].join("/"),
-      {
-        headers: authorizationHeader,
-      }
-    );
+    const client = new GraphQLClient([baseUrl, "v3/admin-graphql"].join("/"), {
+      headers: authorizationHeader,
+    });
 
     const projectId = await ensureProject(client);
     await ensureLatestSchema(utils.git, projectId);
 
     const projectClient = new GraphQLClient(
-      [
-        TAKESHAPE_BASE_URL ?? "https://api.takeshape.io",
-        "project",
-        projectId,
-        "v3/admin-graphql",
-      ].join("/"),
+      [baseUrl, "project", projectId, "v3/admin-graphql"].join("/"),
       {
         headers: authorizationHeader,
       }
