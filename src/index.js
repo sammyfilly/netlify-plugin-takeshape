@@ -12,19 +12,12 @@ const authorizationHeader = {
 const baseUrl = TAKESHAPE_BASE_URL ?? "https://api.takeshape.io";
 
 async function ensureLatestSchema(git, projectId) {
-  const schemaFiles = git.fileMatch("**/schema.json");
-
-  if (schemaFiles.edited.length === 0) {
-    return;
-  }
-
-  if (schemaFiles.edited.length > 1) {
-    console.log("Skipping schema update because there were multiple files named \"schema.json\" in the changeset");
+  if (!git.modifiedFiles.includes(".takeshape/pattern/schema.json")) {
     return;
   }
 
   await fetch([baseUrl, "project", projectId, "schema"].join("/"), {
-    body: readFileSync(schemaFiles.modified[0]),
+    body: readFileSync(".takeshape/pattern/schema.json"),
     headers: {
       ...authorizationHeader,
       "Content-Type": "application/json",
@@ -33,18 +26,18 @@ async function ensureLatestSchema(git, projectId) {
   });
 }
 
-async function createApiKey(client, role) {
+async function createApiKey(client, name, role) {
   const {
     tsCreateApiKey: { apiKey },
   } = await client.request(
     gql`
-      mutation ($role: String!) {
-        tsCreateApiKey(name: "Netlify", role: $role) {
+      mutation ($name: String!, $role: String!) {
+        tsCreateApiKey(name: $name, role: $role) {
           apiKey
         }
       }
     `,
-    { role }
+    { name, role }
   );
 
   return apiKey;
@@ -59,12 +52,21 @@ async function ensureApiKeys(client) {
     }
   `);
 
-  const readKey = apiKeys.find((k) => k.role === "read")
+  const readKeyName = "Netlify Read Only";
+  const readKeyRole = "read";
+  const readKey = apiKeys.find(
+    (k) => k.name === readKeyName && k.role === readKeyRole
+  )
     ? undefined
-    : await createApiKey(client, "read");
-  const readWriteKey = apiKeys.find((k) => k.role === "readWrite")
+    : await createApiKey(client, readKeyName, readKeyRole);
+
+  const readWriteKeyName = "Netlify Read/Write";
+  const readWriteKeyRole = "readWrite";
+  const readWriteKey = apiKeys.find(
+    (k) => k.name === readWriteKeyName && k.role === readWriteKeyRole
+  )
     ? undefined
-    : await createApiKey(client, "readWrite");
+    : await createApiKey(client, readWriteKeyName, readWriteKeyRole);
 
   return { readKey, readWriteKey };
 }
@@ -215,8 +217,7 @@ export const onPreBuild = async function ({ netlifyConfig, utils }) {
 
     netlifyConfig.build.environment.TAKESHAPE_API_URL = `https://api.takeshape.io/project/${projectId}/v3/graphql`;
     netlifyConfig.build.environment.TAKESHAPE_READ_ONLY_API_KEY = readKey;
-    netlifyConfig.build.environment.TAKESHAPE_READ_ONLY_WRITE_KEY =
-      readWriteKey;
+    netlifyConfig.build.environment.TAKESHAPE_READ_WRITE_KEY = readWriteKey;
   } catch (e) {
     utils.build.failBuild(
       e.response?.status === 401 ? "Invalid TAKESHAPE_ACCESS_TOKEN" : e.message
