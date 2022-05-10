@@ -1,0 +1,23 @@
+{
+  "name": "netlify-plugin-takeshape",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takeshape/netlify-plugin-takeshape.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/takeshape/netlify-plugin-takeshape/issues"
+  },
+  "homepage": "https://github.com/takeshape/netlify-plugin-takeshape#readme",
+  "dependencies": {
+    "cross-fetch": "^3.1.5",
+    "graphql": "^16.4.0",
+    "graphql-request": "^4.2.0",
+    "jszip": "^3.9.1"
+  }
+}
