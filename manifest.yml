@@ -1,1 +1,6 @@
 name: netlify-plugin-takeshape
+inputs:
+  - name: timezone
+    required: false
+    description: The tz database name of the timezone to set as the default for your TakeShape project
+    default: "America/New_York"

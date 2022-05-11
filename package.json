@@ -1,23 +1,46 @@
 {
-  "name": "netlify-plugin-takeshape",
+  "name": "@takeshape/netlify-plugin-takeshape",
   "version": "1.0.0",
-  "description": "",
-  "type": "module",
+  "description": "A Netlify build plugin for automatically creating and configuring a TakeShape project for use with a Netlify site",
+  "keywords": [
+    "netlify",
+    "netlify-plugin",
+    "takeshape"
+  ],
+  "homepage": "https://www.takeshape.io",
+  "bugs": {
+    "email": "support@takeshape.io",
+    "url": "https://github.com/takeshape/netlify-plugin-takeshape/issues"
+  },
+  "license": "MIT",
+  "author": "Rob Grant <rob@takeshape.io>",
+  "files": [
+    "src/**/*",
+    "manifest.yml"
+  ],
   "main": "src/index.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/takeshape/netlify-plugin-takeshape.git"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/takeshape/netlify-plugin-takeshape/issues"
+  "scripts": {
+    "test": "ava"
   },
-  "homepage": "https://github.com/takeshape/netlify-plugin-takeshape#readme",
   "dependencies": {
     "cross-fetch": "^3.1.5",
     "graphql": "^16.4.0",
     "graphql-request": "^4.2.0",
     "jszip": "^3.9.1"
+  },
+  "devDependencies": {
+    "ava": "^4.2.0",
+    "sinon": "^14.0.0"
+  },
+  "ava": {
+    "environmentVariables": {
+      "BRANCH": "branch",
+      "SITE_NAME": "site-name"
+    }
   }
 }
