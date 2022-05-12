@@ -20,7 +20,7 @@ Add the following to your `netlify.toml` file:
   package = "@takeshape/netlify-plugin-takeshape"
 
   # Optional: specify the timzeone for your TakeShape project (defaults to "America/New_York")
-  [plugins.imports]
+  [plugins.inputs]
     timezone = "America/Los_Angeles"
 ```
 
